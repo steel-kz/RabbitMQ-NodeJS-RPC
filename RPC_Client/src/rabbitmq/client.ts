@@ -3,6 +3,12 @@ import config from "../config";
 import Consumer from "./consumer";
 import Producer from "./producer";
 import { EventEmitter } from "events";
+const winston = require('winston');
+
+const logger = winston.createLogger({
+  format: winston.format.json(),
+  transports: [new winston.transports.File({ filename: 'application.log' })],
+});
 
 class RabbitMQClient {
   private constructor() {}
@@ -56,7 +62,7 @@ class RabbitMQClient {
 
       this.isInitialized = true;
     } catch (error) {
-      console.log("rabbitmq error...", error);
+      logger.info("rabbitmq error...", error);
     }
   }
   async produce(data: any) {

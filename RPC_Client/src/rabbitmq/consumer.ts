@@ -1,5 +1,11 @@
 import { Channel, ConsumeMessage } from "amqplib";
 import EventEmitter from "events";
+const winston = require('winston');
+
+const logger = winston.createLogger({
+  format: winston.format.json(),
+  transports: [new winston.transports.File({ filename: 'application.log' })],
+});
 
 export default class Consumer {
   constructor(
@@ -9,12 +15,12 @@ export default class Consumer {
   ) {}
 
   async consumeMessages() {
-    console.log("Ready to consume messages...");
+    logger.info("Ready to consume messages...");
 
     this.channel.consume(
       this.replyQueueName,
       (message: ConsumeMessage) => {
-        console.log("the reply is..", JSON.parse(message.content.toString()));
+        logger.info("the reply is..", JSON.parse(message.content.toString()));
         this.eventEmitter.emit(
           message.properties.correlationId.toString(),
           message

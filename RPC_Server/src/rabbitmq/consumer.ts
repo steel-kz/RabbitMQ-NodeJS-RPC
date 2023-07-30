@@ -1,11 +1,17 @@
 import { Channel, ConsumeMessage } from "amqplib";
 import MessageHandler from "../messageHandler";
+const winston = require('winston');
+
+const logger = winston.createLogger({
+  format: winston.format.json(),
+  transports: [new winston.transports.File({ filename: 'application.log' })],
+});
 
 export default class Consumer {
   constructor(private channel: Channel, private rpcQueue: string) {}
 
   async consumeMessages() {
-    console.log("Ready to consume messages...");
+    logger.info("Ready to consume messages...");
 
     this.channel.consume(
       this.rpcQueue,
@@ -13,9 +19,9 @@ export default class Consumer {
         const { correlationId, replyTo } = message.properties;
         const operation = message.properties.headers.function;
         if (!correlationId || !replyTo) {
-          console.log("Missing some properties...");
+          logger.info("Missing some properties...");
         }
-        console.log("Consumed", JSON.parse(message.content.toString()));
+        logger.info("Consumed", JSON.parse(message.content.toString()));
         await MessageHandler.handle(
           operation,
           JSON.parse(message.content.toString()),

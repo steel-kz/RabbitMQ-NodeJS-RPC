@@ -2,6 +2,12 @@ import { Channel } from "amqplib";
 import config from "../config";
 import { randomUUID } from "crypto";
 import EventEmitter from "events";
+const winston = require('winston');
+
+const logger = winston.createLogger({
+  format: winston.format.json(),
+  transports: [new winston.transports.File({ filename: 'application.log' })],
+});
 
 export default class Producer {
   constructor(
@@ -12,7 +18,7 @@ export default class Producer {
 
   async produceMessages(data: any) {
     const uuid = randomUUID();
-    console.log("the corr id is ", uuid);
+    logger.info("the corr id is ", uuid);
     this.channel.sendToQueue(
       config.rabbitMQ.queues.rpcQueue,
       Buffer.from(JSON.stringify(data)),
